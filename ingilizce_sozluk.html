@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İngilizce Sözlük</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;min-height:100vh;color:#1a202c}
+
+/* ===== AUTH OVERLAY ===== */
+.auth-overlay{position:fixed;inset:0;background:#f0f4f8;display:flex;align-items:center;justify-content:center;z-index:1000}
+.auth-box{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,.1)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center}
+.auth-logo-icon{width:44px;height:44px;background:#2B5597;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700}
+.auth-logo-text{font-size:22px;font-weight:700;color:#1a202c}
+.auth-title{font-size:18px;font-weight:600;color:#1a202c;margin-bottom:6px}
+.auth-sub{font-size:13px;color:#718096;margin-bottom:24px}
+.auth-fg{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.auth-fg label{font-size:12px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.auth-fg input{height:40px;padding:0 12px;border:1px solid #e2e8f0;border-radius:8px;background:#f7fafc;color:#1a202c;font-size:14px;font-family:inherit;transition:border-color .15s}
+.auth-fg input:focus{outline:none;border-color:#2B5597;background:#fff;box-shadow:0 0 0 3px rgba(43,85,151,.08)}
+.auth-btn{width:100%;height:42px;background:#2B5597;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:4px}
+.auth-btn:hover{background:#1d4487}
+.auth-switch{text-align:center;margin-top:16px;font-size:13px;color:#718096}
+.auth-switch a{color:#2B5597;cursor:pointer;font-weight:500;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+.auth-err{font-size:12px;color:#e53e3e;margin-bottom:10px;display:none;padding:8px 12px;background:#fff5f5;border:1px solid #fed7d7;border-radius:6px}
+.auth-divider{border:none;border-top:1px solid #e2e8f0;margin:18px 0}
+.users-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:200px;overflow-y:auto}
+.user-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;transition:all .15s}
+.user-item:hover{border-color:#2B5597;background:#f0f5ff}
+.user-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.user-name{font-size:14px;font-weight:500;color:#2d3748}
+.user-meta{font-size:12px;color:#a0aec0}
+.user-arrow{margin-left:auto;color:#a0aec0;font-size:14px}
+
+/* ===== MAIN APP ===== */
+.app-wrap{display:none}
+.container{max-width:1220px;margin:0 auto;padding:2rem 1.25rem}
+.nav-tabs{display:flex;gap:4px;margin-bottom:1.5rem;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:4px;width:fit-content}
+.nav-tab{padding:8px 22px;border-radius:7px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#718096;transition:all .15s}
+.nav-tab.active{background:#2B5597;color:#fff}
+.nav-tab:hover:not(.active){background:#f0f4f8;color:#2d3748}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:#2B5597;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700}
+.logo-text{font-size:20px;font-weight:600;color:#1a202c}
+.logo-sub{font-size:12px;color:#718096}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.sc{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid #e2e8f0;background:#fff;color:#718096}
+.sc span{font-weight:700;margin-right:4px}
+.sc.all span{color:#2B5597}.sc.s-learned span{color:#276749}.sc.s-learning span{color:#744210}.sc.s-notlearned span{color:#742a2a}
+.user-badge{display:flex;align-items:center;gap:8px;padding:6px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:20px;font-size:13px;font-weight:500;color:#2d3748}
+.user-badge-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.switch-user-btn{font-size:12px;color:#2B5597;background:none;border:none;cursor:pointer;padding:2px 0;font-weight:500;margin-left:4px}
+.switch-user-btn:hover{text-decoration:underline}
+
+/* DICTIONARY */
+.toolbar{display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap input{width:100%;height:40px;padding:0 12px 0 38px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:14px;color:#1a202c;font-family:inherit;transition:border-color .15s}
+.search-wrap input:focus{outline:none;border-color:#2B5597;box-shadow:0 0 0 3px rgba(43,85,151,.1)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#a0aec0;font-size:15px;pointer-events:none}
+.filter-group{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid #e2e8f0;background:#fff;color:#718096;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:#a0aec0}
+.filter-btn.active{border-color:#2B5597;background:#ebf0fa;color:#2B5597}
+.filter-btn.f-learned.active{border-color:#276749;background:#f0fff4;color:#276749}
+.filter-btn.f-learning.active{border-color:#d69e2e;background:#fffff0;color:#744210}
+.filter-btn.f-notlearned.active{border-color:#e53e3e;background:#fff5f5;color:#742a2a}
+.sort-select{height:40px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:13px;color:#4a5568;cursor:pointer;font-family:inherit}
+.tbl-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead tr{background:#2B5597}
+thead th{padding:11px 13px;font-size:12px;font-weight:600;color:#fff;text-align:left;border-right:1px solid rgba(255,255,255,.12);white-space:nowrap;letter-spacing:.03em;cursor:pointer;user-select:none;transition:background .12s}
+thead th:hover{background:#1d4487}
+thead th:last-child{border-right:none}
+.sort-arr{opacity:.5;font-size:10px;margin-left:4px}
+.sorted .sort-arr{opacity:1}
+tbody tr{border-bottom:1px solid #f0f4f8;transition:background .12s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f7fafc}
+tbody td{padding:10px 13px;font-size:13px;color:#2d3748;vertical-align:middle;border-right:1px solid #f0f4f8;overflow:hidden;text-overflow:ellipsis}
+tbody td:last-child{border-right:none}
+tbody tr.row-learned{background:#f0fff4}
+tbody tr.row-learned:hover{background:#e6ffed}
+tbody tr.row-learning{background:#fffff0}
+tbody tr.row-learning:hover{background:#fefce8}
+tbody tr.row-notlearned{background:#fff5f5}
+tbody tr.row-notlearned:hover{background:#ffebeb}
+.diff-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:22px;border-radius:5px;font-size:11px;font-weight:700}
+.b1{background:#c6f6d5;color:#22543d}.b2{background:#feebc8;color:#7b341e}.b3{background:#fed7d7;color:#742a2a}
+.word-cell{font-weight:600;color:#1a202c}
+.tr-cell{color:#2b6cb0;font-weight:500}
+.syn-cell{color:#276749;font-style:italic}
+.ant-cell{color:#9b2c2c;font-style:italic}
+.ex-cell{color:#718096;font-style:italic}
+.status-select{border:1px solid #e2e8f0;background:#fff;font-size:14px;cursor:pointer;padding:3px 6px;border-radius:7px;width:100%;font-family:inherit}
+.status-select:focus{outline:none;border-color:#2B5597}
+.del-wrap{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.del-btn{opacity:0;background:none;border:none;cursor:pointer;color:#a0aec0;font-size:13px;padding:3px 6px;border-radius:4px;transition:opacity .12s,color .12s;flex-shrink:0}
+tbody tr:hover .del-btn{opacity:1}
+.del-btn:hover{color:#e53e3e;background:#fff5f5}
+.speak-btn{background:none;border:none;cursor:pointer;color:#a0aec0;font-size:13px;padding:2px 5px;border-radius:4px;transition:color .12s,background .12s;flex-shrink:0;line-height:1;opacity:0}
+tbody tr:hover .speak-btn{opacity:1}
+.speak-btn:hover{color:#2B5597;background:#ebf0fa}
+.speak-btn.speaking{color:#2B5597;opacity:1;animation:pulse-speak .6s infinite alternate}
+@keyframes pulse-speak{from{opacity:.5}to{opacity:1}}
+.word-with-audio{display:flex;align-items:center;gap:4px}
+.empty{padding:40px;text-align:center;color:#a0aec0;font-size:14px}
+.add-card{margin-top:1.25rem;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.add-head{padding:13px 18px;background:#f7fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between}
+.add-head-title{font-size:14px;font-weight:600;color:#2d3748;display:flex;align-items:center;gap:8px}
+.add-head-title::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:#2B5597}
+.tog-btn{font-size:12px;color:#2B5597;background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:6px;font-weight:500}
+.tog-btn:hover{background:#ebf0fa}
+.add-body{padding:18px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.fg input,.fg select,.fg textarea{height:36px;padding:0 10px;border:1px solid #e2e8f0;border-radius:7px;background:#f7fafc;color:#1a202c;font-size:13px;font-family:inherit;width:100%;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:#2B5597;background:#fff;box-shadow:0 0 0 3px rgba(43,85,151,.08)}
+.fg textarea{height:58px;padding:8px 10px;resize:none}
+.row1{display:grid;grid-template-columns:110px 1fr 1fr 150px;gap:12px;margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.row3{margin-bottom:16px}
+.add-footer{display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.err{font-size:12px;color:#e53e3e;display:none}
+.submit-btn{padding:9px 24px;background:#2B5597;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+.submit-btn:hover{background:#1d4487}
+
+/* FLASHCARD */
+.flash-layout{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start}
+@media(max-width:860px){.flash-layout{grid-template-columns:1fr}}
+.card-arena{display:flex;flex-direction:column;align-items:center;gap:1.25rem}
+.session-bar{width:100%;display:flex;align-items:center;gap:12px}
+.progress-track{flex:1;height:8px;background:#e2e8f0;border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:#2B5597;border-radius:10px;transition:width .4s ease}
+.session-label{font-size:13px;color:#718096;white-space:nowrap}
+.fc-wrap{width:100%;max-width:520px;perspective:900px;cursor:pointer}
+.fc-inner{position:relative;width:100%;height:320px;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.fc-inner.flipped{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;border-radius:16px;padding:32px 36px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #e2e8f0;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.fc-front{background:#fff}.fc-back{background:#fff;transform:rotateY(180deg)}
+.fc-status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;width:fit-content}
+.pill-learned{background:#c6f6d5;color:#22543d}.pill-learning{background:#feebc8;color:#7b341e}.pill-notlearned{background:#fed7d7;color:#742a2a}
+.fc-word{font-size:42px;font-weight:700;color:#1a202c;text-align:center;line-height:1.1}
+.fc-sub{font-size:15px;color:#718096;text-align:center;margin-top:6px}
+.fc-tap{font-size:12px;color:#a0aec0;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px}
+.fc-back-word{font-size:28px;font-weight:700;color:#1a202c}
+.fc-back-tr{font-size:18px;color:#2b6cb0;font-weight:500;margin-top:4px}
+.fc-word-row{display:flex;align-items:center;justify-content:center;gap:10px}
+.fc-speak-btn{background:none;border:1.5px solid #e2e8f0;cursor:pointer;color:#718096;font-size:16px;padding:6px 10px;border-radius:8px;transition:all .15s;line-height:1}
+.fc-speak-btn:hover{color:#2B5597;border-color:#2B5597;background:#ebf0fa}
+.fc-speak-btn.speaking{color:#2B5597;border-color:#2B5597;background:#ebf0fa;animation:pulse-speak .6s infinite alternate}
+.fc-back-tr{font-size:18px;color:#2b6cb0;font-weight:500;margin-top:4px}
+.fc-back-ex{font-size:13px;color:#718096;font-style:italic;margin-top:12px;line-height:1.6;border-left:3px solid #e2e8f0;padding-left:12px}
+.fc-back-status{margin-top:auto;padding-top:12px;border-top:1px solid #f0f4f8;display:flex;align-items:center;justify-content:space-between}
+.fc-back-status-label{font-size:12px;color:#a0aec0}
+.answer-btns{display:flex;gap:10px;width:100%;max-width:520px}
+.ans-btn{flex:1;padding:12px 0;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.ans-btn:active{transform:scale(.97)}
+.ans-wrong{background:#fed7d7;color:#742a2a}.ans-wrong:hover{background:#feb2b2}
+.ans-ok{background:#feebc8;color:#7b341e}.ans-ok:hover{background:#fbd38d}
+.ans-right{background:#c6f6d5;color:#22543d}.ans-right:hover{background:#9ae6b4}
+.ans-btn:disabled{opacity:.4;cursor:not-allowed}
+.algo-panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.algo-title{font-size:13px;font-weight:600;color:#2d3748;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.algo-title::before{content:'';width:8px;height:8px;border-radius:50%;background:#2B5597;display:inline-block}
+.algo-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0f4f8;font-size:13px}
+.algo-row:last-child{border-bottom:none}
+.algo-key{color:#718096}
+.algo-val{font-weight:600;color:#2d3748}
+.algo-val.green{color:#276749}.algo-val.yellow{color:#744210}.algo-val.red{color:#742a2a}.algo-val.blue{color:#2B5597}
+.mix-bar{margin-top:14px}
+.mix-bar-label{font-size:11px;color:#a0aec0;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.mix-track{height:10px;border-radius:10px;overflow:hidden;display:flex;gap:2px}
+.mix-seg{height:100%;border-radius:2px;transition:width .4s ease}
+.mix-legend{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.mix-dot{display:flex;align-items:center;gap:4px;font-size:11px;color:#718096}
+.mix-dot::before{content:'';width:8px;height:8px;border-radius:50%}
+.dot-green::before{background:#68d391}.dot-yellow::before{background:#f6ad55}.dot-red::before{background:#fc8181}
+.streak-wrap{margin-top:14px;padding:10px 14px;background:#f0f4f8;border-radius:8px;display:flex;align-items:center;justify-content:space-between}
+.streak-label{font-size:12px;color:#718096}
+.streak-val{font-size:18px;font-weight:700;color:#2B5597}
+.session-done{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:320px;text-align:center}
+.done-icon{font-size:52px}
+.done-title{font-size:22px;font-weight:700;color:#1a202c}
+.done-sub{font-size:14px;color:#718096;max-width:320px;line-height:1.6}
+.restart-btn{padding:10px 28px;background:#2B5597;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.restart-btn:hover{background:#1d4487}
+.flash-start{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:320px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:36px;text-align:center}
+.flash-start h2{font-size:20px;font-weight:700;color:#1a202c}
+.flash-start p{font-size:14px;color:#718096;max-width:360px;line-height:1.7}
+.start-btn{padding:12px 32px;background:#2B5597;color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.start-btn:hover{background:#1d4487}
+.mode-pick{display:flex;gap:10px}
+.mode-btn{padding:8px 18px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:#fff;color:#718096;font-family:inherit;transition:all .15s}
+.mode-btn.active{border-color:#2B5597;background:#ebf0fa;color:#2B5597}
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH OVERLAY ===== -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box" id="auth-box">
+
+    <div class="auth-logo">
+      <div class="auth-logo-icon">E</div>
+      <span class="auth-logo-text">İngilizce Sözlük</span>
+    </div>
+
+    <!-- ANA EKRAN: kullanıcı listesi + butonlar -->
+    <div id="screen-pick">
+      <div class="auth-title">Hoş Geldiniz</div>
+      <div class="auth-sub">Hesabınızı seçin veya giriş yapın</div>
+      <div class="auth-err" id="pick-err"></div>
+      <div class="users-list" id="users-list"></div>
+      <hr style="border:none;border-top:1px solid #e2e8f0;margin:12px 0">
+      <div style="display:flex;gap:8px">
+        <button id="btn-goto-login" class="auth-btn" style="flex:1;background:#2B5597">🔑 Giriş Yap</button>
+        <button id="btn-goto-register" class="auth-btn" style="flex:1;background:#f7fafc;color:#2d3748;border:1px solid #e2e8f0">✚ Yeni Hesap</button>
+      </div>
+    </div>
+
+    <!-- GİRİŞ EKRANI -->
+    <div id="screen-login" style="display:none">
+      <div class="auth-title">Giriş Yap</div>
+      <div class="auth-sub">Kayıtlı hesabınıza giriş yapın</div>
+      <div class="auth-err" id="login-err"></div>
+      <div class="auth-fg">
+        <label>Ad Soyad</label>
+        <input type="text" id="login-name" placeholder="örn. Ahmet Yılmaz">
+      </div>
+      <div class="auth-fg">
+        <label>Şifre</label>
+        <input type="password" id="login-pw" placeholder="Şifrenizi girin">
+      </div>
+      <button id="btn-do-login" class="auth-btn" style="margin-top:4px">Giriş Yap →</button>
+      <div class="auth-switch"><a id="btn-back-from-login" style="cursor:pointer">← Geri dön</a></div>
+    </div>
+
+    <!-- KAYIT EKRANI -->
+    <div id="screen-register" style="display:none">
+      <div class="auth-title">Yeni Hesap Oluştur</div>
+      <div class="auth-sub">Bilgilerinizi girin</div>
+      <div class="auth-err" id="reg-err"></div>
+      <div class="auth-fg">
+        <label>Ad Soyad</label>
+        <input type="text" id="reg-name" placeholder="örn. Ahmet Yılmaz">
+      </div>
+      <div class="auth-fg">
+        <label>Şifre</label>
+        <input type="password" id="reg-pw" placeholder="En az 4 karakter">
+      </div>
+      <div class="auth-fg">
+        <label>Şifre Tekrar</label>
+        <input type="password" id="reg-pw2" placeholder="Şifrenizi tekrar girin">
+      </div>
+      <button id="btn-do-register" class="auth-btn" style="margin-top:4px">Hesap Oluştur →</button>
+      <div class="auth-switch">Zaten hesabınız var mı? <a id="btn-back-from-register" style="cursor:pointer">Giriş yap</a></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app-wrap" id="app-wrap">
+<div class="container">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">E</div>
+      <div>
+        <div class="logo-text">İngilizce Sözlük</div>
+        <div class="logo-sub" id="app-sub">Kişisel kelime kütüphaneniz</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="stats" id="stats"></div>
+      <div class="user-badge" id="user-badge">
+        <div class="user-badge-dot" id="user-badge-dot"></div>
+        <span id="user-badge-name"></span>
+        <button class="switch-user-btn" onclick="switchUser()">Değiştir</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('dict',this)">📚 Sözlük</button>
+    <button class="nav-tab" onclick="showPage('flash',this)">🃏 Flash Kartlar</button>
+  </div>
+
+  <!-- DICTIONARY -->
+  <div id="page-dict">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="Kelime, Türkçe karşılık veya tanım ara..." oninput="renderDict()">
+      </div>
+      <div class="filter-group">
+        <button class="filter-btn f-all active" onclick="setFilter('all',this)">Tümü</button>
+        <button class="filter-btn f-learned" onclick="setFilter('learned',this)">✅ Öğrenildi</button>
+        <button class="filter-btn f-learning" onclick="setFilter('learning',this)">🔄 Öğreniliyor</button>
+        <button class="filter-btn f-notlearned" onclick="setFilter('notlearned',this)">❌ Öğrenilmedi</button>
+      </div>
+      <select class="sort-select" id="sort-sel" onchange="renderDict()">
+        <option value="default">Sırala: Varsayılan</option>
+        <option value="word-az">Kelime A → Z</option>
+        <option value="word-za">Kelime Z → A</option>
+        <option value="diff-asc">Zorluk: Kolaydan Zora</option>
+        <option value="diff-desc">Zorluk: Zordan Kolaya</option>
+        <option value="status-learned">Durum: Öğrenildi önce</option>
+        <option value="status-learning">Durum: Öğreniliyor önce</option>
+        <option value="status-notlearned">Durum: Öğrenilmedi önce</option>
+      </select>
+    </div>
+    <div class="tbl-card">
+      <table>
+        <thead id="thead">
+          <tr>
+            <th style="width:64px;text-align:center" data-col="diff">Zorluk<span class="sort-arr">↕</span></th>
+            <th style="width:118px" data-col="word">Kelime<span class="sort-arr">↕</span></th>
+            <th style="width:108px" data-col="tr">Türkçesi<span class="sort-arr">↕</span></th>
+            <th style="width:185px">Tanım</th>
+            <th style="width:112px">Eş Anlamlı</th>
+            <th style="width:112px">Zıt Anlamlı</th>
+            <th>Örnek Cümle</th>
+            <th style="width:110px;text-align:center" data-col="status">Durum<span class="sort-arr">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="add-card">
+      <div class="add-head">
+        <span class="add-head-title">Yeni Kelime Ekle</span>
+        <button class="tog-btn" onclick="toggleForm()" id="tog-btn">Gizle ▲</button>
+      </div>
+      <div class="add-body" id="add-body">
+        <div class="row1">
+          <div class="fg"><label>Zorluk</label>
+            <select id="f-diff"><option value="1">1 — Kolay</option><option value="2">2 — Orta</option><option value="3">3 — Zor</option></select>
+          </div>
+          <div class="fg"><label>Kelime (İngilizce)</label><input id="f-word" placeholder="örn. honest"></div>
+          <div class="fg"><label>Türkçesi</label><input id="f-tr" placeholder="örn. dürüst"></div>
+          <div class="fg"><label>Durum</label>
+            <select id="f-status"><option value="notlearned">❌ Öğrenilmedi</option><option value="learning">🔄 Öğreniliyor</option><option value="learned">✅ Öğrenildi</option></select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="fg"><label>Tanım (İngilizce)</label><input id="f-def" placeholder="örn. free of deceit"></div>
+          <div class="fg"><label>Eş Anlamlı</label><input id="f-syn" placeholder="örn. sincere"></div>
+          <div class="fg"><label>Zıt Anlamlı</label><input id="f-ant" placeholder="örn. unreliable"></div>
+        </div>
+        <div class="row3">
+          <div class="fg"><label>Örnek Cümle</label><textarea id="f-ex" placeholder="örn. He is a very honest person."></textarea></div>
+        </div>
+        <div class="add-footer">
+          <span class="err" id="err-msg">⚠ Kelime, Türkçesi ve Tanım alanları zorunludur.</span>
+          <button class="submit-btn" onclick="addWord()">+ Kelime Ekle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLASHCARD -->
+  <div id="page-flash" style="display:none">
+    <div class="flash-layout">
+      <div class="card-arena" id="card-arena">
+        <div class="flash-start" id="flash-start">
+          <div style="font-size:48px">🃏</div>
+          <h2>Flash Kart Çalışması</h2>
+          <p>Akıllı sıralama algoritması ile kelimelerini çalış. Kart önce İngilizce ya da Türkçe gösterilir — üzerine tıklayarak tüm bilgileri görürsün.</p>
+          <div class="mode-pick">
+            <button class="mode-btn active" id="mode-en" onclick="setMode('en',this)">🇬🇧 İngilizce → Türkçe</button>
+            <button class="mode-btn" id="mode-tr" onclick="setMode('tr',this)">🇹🇷 Türkçe → İngilizce</button>
+          </div>
+          <button class="start-btn" onclick="startSession()">Çalışmaya Başla →</button>
+        </div>
+        <div id="flash-session" style="display:none;width:100%">
+          <div class="session-bar">
+            <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+            <span class="session-label" id="prog-label">0 / 0</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
+            <div class="fc-wrap" id="fc-wrap" onclick="flipCard()">
+              <div class="fc-inner" id="fc-inner">
+                <div class="fc-front" id="fc-front">
+                  <div id="fc-status-pill"></div>
+                  <div>
+                    <div class="fc-word-row">
+                      <div class="fc-word" id="fc-front-word">—</div>
+                      <button class="fc-speak-btn" id="fc-front-speak" onclick="event.stopPropagation();speakCard()" title="Telaffuzu dinle">🔊</button>
+                    </div>
+                    <div class="fc-sub" id="fc-front-sub"></div>
+                  </div>
+                  <div class="fc-tap">👆 Kartı çevirmek için tıkla</div>
+                </div>
+                <div class="fc-back" id="fc-back">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px">
+                      <div class="fc-back-word" id="fc-back-word"></div>
+                      <button class="fc-speak-btn" id="fc-back-speak" onclick="event.stopPropagation();speakCardBack()" title="İngilizce telaffuzu dinle">🔊</button>
+                    </div>
+                    <div class="fc-back-tr" id="fc-back-tr"></div>
+                    <div class="fc-back-ex" id="fc-back-ex"></div>
+                  </div>
+                  <div class="fc-back-status">
+                    <span class="fc-back-status-label">Durumunu güncelle:</span>
+                    <select class="status-select" id="inline-status" onchange="updateCardStatus(this.value)" style="width:auto;font-size:13px" onclick="event.stopPropagation()">
+                      <option value="learned">✅ Öğrenildi</option>
+                      <option value="learning">🔄 Öğreniliyor</option>
+                      <option value="notlearned">❌ Öğrenilmedi</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="answer-btns">
+              <button class="ans-btn ans-wrong" onclick="answer('wrong')" disabled id="btn-wrong">❌ Bilmedim</button>
+              <button class="ans-btn ans-ok" onclick="answer('ok')" disabled id="btn-ok">🔄 Aklıma Geldi</button>
+              <button class="ans-btn ans-right" onclick="answer('right')" disabled id="btn-right">✅ Bildim</button>
+            </div>
+          </div>
+        </div>
+        <div class="session-done" id="flash-done" style="display:none">
+          <div class="done-icon">🎉</div>
+          <div class="done-title">Oturum Tamamlandı!</div>
+          <div class="done-sub" id="done-sub"></div>
+          <button class="restart-btn" onclick="restartSession()">Yeniden Başlat</button>
+        </div>
+      </div>
+      <div>
+        <div class="algo-panel">
+          <div class="algo-title">Algoritma Durumu</div>
+          <div class="algo-row"><span class="algo-key">Toplam kelime</span><span class="algo-val blue" id="ap-total">—</span></div>
+          <div class="algo-row"><span class="algo-key">Bu oturum</span><span class="algo-val blue" id="ap-session">—</span></div>
+          <div class="algo-row"><span class="algo-key">✅ Öğrenildi</span><span class="algo-val green" id="ap-learned">—</span></div>
+          <div class="algo-row"><span class="algo-key">🔄 Öğreniliyor</span><span class="algo-val yellow" id="ap-learning">—</span></div>
+          <div class="algo-row"><span class="algo-key">❌ Öğrenilmedi</span><span class="algo-val red" id="ap-notlearned">—</span></div>
+          <div class="mix-bar">
+            <div class="mix-bar-label">Aktif Karışım Oranı</div>
+            <div class="mix-track">
+              <div class="mix-seg" id="mix-learned" style="background:#68d391;width:70%"></div>
+              <div class="mix-seg" id="mix-learning" style="background:#f6ad55;width:20%"></div>
+              <div class="mix-seg" id="mix-notlearned" style="background:#fc8181;width:10%"></div>
+            </div>
+            <div class="mix-legend">
+              <span class="mix-dot dot-green" id="mix-lbl-learned">%70 Öğrenildi</span>
+              <span class="mix-dot dot-yellow" id="mix-lbl-learning">%20 Öğreniliyor</span>
+              <span class="mix-dot dot-red" id="mix-lbl-notlearned">%10 Öğrenilmedi</span>
+            </div>
+          </div>
+          <div class="streak-wrap">
+            <span class="streak-label">Üst üste doğru 🔥</span>
+            <span class="streak-val" id="ap-streak">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// Firebase dynamic import — no type="module" needed, works with onclick handlers
+let initializeApp, getFirestore, fsDoc, getDoc, setDoc, collection, getDocs;
+
+async function loadFirebase(){
+  const app = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js");
+  const fs  = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js");
+  initializeApp  = app.initializeApp;
+  getFirestore   = fs.getFirestore;
+  fsDoc          = fs.doc;
+  getDoc         = fs.getDoc;
+  setDoc         = fs.setDoc;
+  collection     = fs.collection;
+  getDocs        = fs.getDocs;
+}
+// ==================== DEFAULT WORDS ====================
+const DEFAULT_WORDS = [
+  {id:1,diff:1,word:"honest",tr:"dürüst",def:"free of deceit",syn:"sincere",ant:"unreliable",ex:"He is a very honest person.",status:"learned"},
+  {id:2,diff:1,word:"brave",tr:"cesur",def:"ready to face danger",syn:"courageous",ant:"cowardly",ex:"She was brave enough to speak up.",status:"learning"},
+  {id:3,diff:2,word:"eloquent",tr:"belagatli",def:"fluent and persuasive in speech",syn:"articulate",ant:"inarticulate",ex:"The eloquent speaker won the debate.",status:"learning"},
+  {id:4,diff:2,word:"benevolent",tr:"hayırsever",def:"well meaning and kindly",syn:"generous",ant:"malevolent",ex:"The benevolent leader donated to charity.",status:"notlearned"},
+  {id:5,diff:3,word:"ephemeral",tr:"geçici",def:"lasting for a very short time",syn:"transient",ant:"permanent",ex:"Fame can be ephemeral.",status:"notlearned"},
+  {id:6,diff:2,word:"Labor",tr:"Emek, iş gücü",def:"Emek, iş gücü",syn:"work, effort, toil",ant:"rest, leisure, inactivity",ex:"The construction of the building required months of hard labor.",status:"learned"},
+  {id:7,diff:2,word:"Comprehensive",tr:"Kapsamlı",def:"Kapsamlı",syn:"extensive,complete",ant:"partial,limited",ex:"She gave a comprehensive report about the project progress.",status:"learned"},
+  {id:8,diff:2,word:"Noteworthy",tr:"Dikkate değer, kayda değer",def:"Dikkate değer, kayda değer",syn:"significant, remarkable, notable",ant:"insignificant, trivial, unimportant",ex:"Her achievements in science are noteworthy.",status:"learning"},
+  {id:9,diff:2,word:"Implement",tr:"Uygulamak, hayata geçirmek",def:"Uygulamak, hayata geçirmek",syn:"execute, carry out, apply",ant:"neglect, abandon, ignore",ex:"The company decided to implement new safety measures.",status:"learning"},
+  {id:10,diff:2,word:"Flaw",tr:"Kusur, hata, eksiklik",def:"Kusur, hata, eksiklik",syn:"defect, fault, imperfection",ant:"strength, advantage",ex:"There's a small flaw in the design of this product.",status:"learned"},
+  {id:11,diff:2,word:"Conservative",tr:"Muhafazakar",def:"Muhafazakar",syn:"traditional, cautious, conventional",ant:"liberal, progressive, radical",ex:"His parents have very conservative views about marriage.",status:"learning"},
+  {id:12,diff:2,word:"Preliminary",tr:"Ön hazırlık, başlangıç",def:"Ön hazırlık, başlangıç",syn:"initial, introductory, preparatory",ant:"final, concluding, ultimate",ex:"We held a preliminary meeting before the main conference.",status:"learned"},
+  {id:13,diff:2,word:"Explicit",tr:"Açık, net",def:"Açık, net",syn:"clear, straightforward",ant:"vague, ambiguous",ex:"The teacher gave explicit instructions for the project.",status:"learning"},
+  {id:14,diff:2,word:"Ambiguous",tr:"Belirsiz, Muğlak",def:"Belirsiz, Muğlak",syn:"unclear, indefinite, vague",ant:"clear, definite, obvious",ex:"The instructions were ambiguous, so I didn't know what to do.",status:"learned"},
+  {id:15,diff:2,word:"Perceive",tr:"Algılamak",def:"Algılamak",syn:"notice, observe, recognize",ant:"ignore, overlook, miss",ex:"People often perceive body language more than words.",status:"learning"},
+  {id:16,diff:2,word:"Compulsory",tr:"Zorunlu",def:"Zorunlu",syn:"mandatory, obligatory",ant:"optional, voluntary",ex:"Wearing a helmet is compulsory in many countries.",status:"learning"},
+  {id:17,diff:2,word:"Dilemma",tr:"İkilem",def:"İkilem",syn:"difficulty, predicament",ant:"solution, clarity, certainty",ex:"I'm in a dilemma about whether to accept the job offer.",status:"learning"},
+  {id:18,diff:2,word:"Enhance",tr:"Arttırmak, geliştirmek",def:"Arttırmak, geliştirmek",syn:"improve, increase",ant:"reduce, weaken",ex:"Adding pictures to your presentation will enhance its effectiveness.",status:"learned"},
+  {id:19,diff:2,word:"Viable",tr:"Uygulanabilir, yaşanabilir",def:"Uygulanabilir, yaşanabilir",syn:"feasible, workable, practical",ant:"impractical, unworkable",ex:"They are looking for a viable solution to the environmental problem.",status:"learning"},
+  {id:20,diff:2,word:"Fawning over",tr:"Aşırı ilgi göstermek, yağcılık yapmak",def:"Aşırı ilgi göstermek, yağcılık yapmak",syn:"flattering, sucking up to, groveling",ant:"ignoring, disrespecting",ex:"The new employee kept fawning over the manager to get a promotion.",status:"notlearned"},
+  {id:21,diff:2,word:"Illustrate",tr:"Açıklamak, örneklemek",def:"Açıklamak, örneklemek",syn:"demonstrate, explain, clarify",ant:"confuse, obscure, complicate",ex:"The teacher illustrated the concept with a simple diagram.",status:"learned"},
+  {id:22,diff:2,word:"Convey",tr:"İletmek, aktarmak",def:"İletmek, aktarmak",syn:"express, communicate",ant:"conceal, suppress",ex:"She tried to convey her feelings through the letter.",status:"learning"},
+  {id:23,diff:2,word:"Superficial",tr:"Yüzeysel",def:"Yüzeysel",syn:"shallow, surface-level",ant:"deep, thorough",ex:"Her analysis of the problem was too superficial to be helpful.",status:"learning"},
+  {id:24,diff:2,word:"Subsequent",tr:"Sonraki, ardından gelen",def:"Sonraki, ardından gelen",syn:"following, later",ant:"previous, prior",ex:"The storm and the subsequent flooding caused major damage.",status:"learning"},
+  {id:25,diff:2,word:"Resilient",tr:"Dayanıklı, çabuk toparlanan",def:"Dayanıklı, çabuk toparlanan",syn:"strong, tough, adaptable",ant:"fragile, weak",ex:"Children are often more resilient than adults in tough situations.",status:"learning"},
+  {id:26,diff:2,word:"Neglect",tr:"İhmal etmek",def:"İhmal etmek",syn:"ignore, overlook",ant:"care, attend",ex:"He neglected his studies and failed the exam.",status:"learning"},
+  {id:27,diff:2,word:"Hesitate",tr:"Tereddüt etmek",def:"Tereddüt etmek",syn:"pause",ant:"decide",ex:"Don't hesitate to ask questions if you're confused.",status:"learning"},
+  {id:28,diff:2,word:"Apprehensive",tr:"Endişeli, tedirgin",def:"Endişeli, tedirgin",syn:"anxious, uneasy",ant:"confident, calm",ex:"She felt apprehensive before starting her new job.",status:"learning"},
+  {id:29,diff:2,word:"Deteriorate",tr:"Kötüleşmek, bozulmak",def:"Kötüleşmek, bozulmak",syn:"worsen, decline",ant:"improve, enhance",ex:"His health began to deteriorate after the accident.",status:"learning"},
+  {id:30,diff:2,word:"Grumpy",tr:"Huysuz, somurtkan",def:"Huysuz, somurtkan",syn:"irritable, cranky",ant:"cheerful, pleasant",ex:"He gets grumpy when he doesn't sleep well.",status:"notlearned"},
+  {id:31,diff:2,word:"Get faint",tr:"Bayılmak",def:"Bayılmak",syn:"—",ant:"—",ex:"—",status:"learning"},
+  {id:32,diff:2,word:"Frustrated",tr:"Hayal kırıklığına uğramış, sinirli",def:"Hayal kırıklığına uğramış, sinirli",syn:"upset",ant:"satisfied",ex:"I felt frustrated when the app kept crashing.",status:"notlearned"},
+  {id:33,diff:2,word:"Make up one's mind",tr:"Karar vermek",def:"Karar vermek",syn:"decide, choose",ant:"hesitate, be unsure",ex:"I can't make up my mind about which movie to watch.",status:"learning"},
+  {id:34,diff:2,word:"Volatility",tr:"Dalgalanma, istikrarsızlık",def:"Dalgalanma, istikrarsızlık",syn:"instability, unpredictability",ant:"stability, consistency",ex:"The stock market's volatility makes investors nervous.",status:"notlearned"},
+  {id:35,diff:2,word:"Establish",tr:"Kurmak, oluşturmak",def:"Kurmak, oluşturmak",syn:"set up, found",ant:"destroy, abolish",ex:"The company was established in 1995.",status:"learning"},
+  {id:36,diff:2,word:"Fluctuate",tr:"Dalgalanmak, değişmek",def:"Dalgalanmak, değişmek",syn:"vary",ant:"stabilize",ex:"Prices fluctuate depending on supply and demand.",status:"learning"},
+  {id:37,diff:2,word:"Incentive",tr:"Teşvik",def:"Teşvik",syn:"motivation, encouragement",ant:"deterrent, discouragement",ex:"The company offers bonuses as an incentive for hard work.",status:"notlearned"},
+  {id:38,diff:2,word:"Eyelashes",tr:"Kirpik",def:"Kirpik",syn:"—",ant:"—",ex:"Her long eyelashes make her eyes look beautiful.",status:"learning"},
+  {id:39,diff:2,word:"Bump into",tr:"Karşılaşmak",def:"Karşılaşmak",syn:"run into, come across",ant:"avoid, miss",ex:"I bumped into my old friend at the mall yesterday.",status:"learning"},
+  {id:40,diff:2,word:"Scarce",tr:"Nadir, kıt",def:"Nadir, kıt",syn:"rare, limited",ant:"abundant, plentiful",ex:"Clean water is becoming scarce in some parts of the world.",status:"learning"},
+  {id:41,diff:2,word:"Reluctant",tr:"İsteksiz, gönülsüz",def:"İsteksiz, gönülsüz",syn:"unwilling",ant:"eager",ex:"She was reluctant to speak in front of the large audience.",status:"learning"},
+  {id:42,diff:2,word:"Evaluate",tr:"Değerlendirmek",def:"Değerlendirmek",syn:"assess, judge",ant:"ignore, neglect",ex:"We need time to evaluate all the options.",status:"learning"},
+  {id:43,diff:2,word:"Postpone",tr:"Ertelemek",def:"Ertelemek",syn:"delay",ant:"advance",ex:"They postponed the match due to heavy rain.",status:"learning"},
+  {id:44,diff:2,word:"Contradict",tr:"Çelişmek",def:"Çelişmek",syn:"disagree",ant:"confirm",ex:"His words contradict his actions.",status:"learning"},
+  {id:45,diff:2,word:"Vulnerability",tr:"Savunmasızlık, hassasiyet",def:"Savunmasızlık, hassasiyet",syn:"weakness, sensitivity",ant:"strength, resilience",ex:"Her emotional vulnerability made her more open to criticism.",status:"notlearned"},
+  {id:46,diff:2,word:"Pivotal",tr:"Çok önemli, dönüm noktası olan",def:"Çok önemli, dönüm noktası olan",syn:"crucial, essential",ant:"minor, insignificant",ex:"That goal was the pivotal moment of the match.",status:"notlearned"},
+  {id:47,diff:2,word:"Suppress",tr:"Bastırmak, engellemek",def:"Bastırmak, engellemek",syn:"restrain",ant:"encourage",ex:"The government tried to suppress the protest.",status:"learning"},
+  {id:48,diff:2,word:"Abuse",tr:"Kötüye kullanmak, istismar etmek",def:"Kötüye kullanmak, istismar etmek",syn:"misuse, mistreat",ant:"protect, respect",ex:"He abused his power to control the situation.",status:"learning"},
+  {id:49,diff:2,word:"Yardstick",tr:"Ölçüt, kıyaslama ölçüsü",def:"Ölçüt, kıyaslama ölçüsü",syn:"standard, benchmark",ant:"exception",ex:"Success is often measured by the yardstick of money and power.",status:"learning"},
+  {id:50,diff:2,word:"Ambivalent",tr:"Kararsız, çelişkili duygular taşıyan",def:"Kararsız, çelişkili duygular taşıyan",syn:"conflicted, unsure",ant:"certain, clear",ex:"He feels ambivalent about moving to another country.",status:"notlearned"},
+  {id:51,diff:2,word:"Recession",tr:"Ekonomik durgunluk",def:"Ekonomik durgunluk",syn:"downturn, decline",ant:"boom, growth",ex:"The country is struggling to recover from a recession.",status:"notlearned"},
+  {id:52,diff:2,word:"Foster",tr:"Teşvik etmek, geliştirmek",def:"Teşvik etmek, geliştirmek",syn:"encourage, nurture",ant:"hinder, neglect",ex:"The teacher tried to foster creativity in her students.",status:"notlearned"},
+  {id:53,diff:2,word:"Notion",tr:"Fikir, düşünce",def:"Fikir, düşünce",syn:"idea, belief",ant:"ignorance, misconception",ex:"She rejected the notion of luck controlling her life.",status:"learning"},
+  {id:54,diff:2,word:"Undermine",tr:"Zayıflatmak, baltalamak",def:"Zayıflatmak, baltalamak",syn:"weaken, sabotage",ant:"strengthen, support",ex:"His constant criticism undermined her confidence.",status:"notlearned"},
+  {id:55,diff:2,word:"Rip",tr:"Yırtmak",def:"Yırtmak",syn:"tear, split",ant:"sew, mend",ex:"He accidentally ripped his shirt on a nail.",status:"notlearned"},
+  {id:56,diff:2,word:"Underestimate",tr:"Küçümsemek, hafife almak",def:"Küçümsemek, hafife almak",syn:"undervalue, belittle",ant:"overestimate, exaggerate",ex:"Don't underestimate her ability to solve the problem.",status:"notlearned"},
+  {id:57,diff:2,word:"Comply",tr:"Uymak, itaat etmek",def:"Uymak, itaat etmek",syn:"obey, follow",ant:"disobey, resist",ex:"All employees must comply with the company rules.",status:"notlearned"},
+  {id:58,diff:2,word:"Deprive",tr:"Mahrum bırakmak",def:"Mahrum bırakmak",syn:"deny, strip",ant:"provide, offer",ex:"The blackout deprived them of electricity for two days.",status:"notlearned"},
+  {id:59,diff:2,word:"Resentment",tr:"Gücenme, kırgınlık",def:"Gücenme, kırgınlık",syn:"bitterness, anger",ant:"contentment, acceptance",ex:"His voice was full of resentment after being ignored.",status:"notlearned"},
+  {id:60,diff:2,word:"Reveal",tr:"Ortaya çıkarmak, ifşa etmek",def:"Ortaya çıkarmak, ifşa etmek",syn:"disclose, expose",ant:"hide, conceal",ex:"He refused to reveal the truth about the accident.",status:"notlearned"},
+  {id:61,diff:2,word:"Interpret",tr:"Yorumlamak, açıklamak",def:"Yorumlamak, açıklamak",syn:"explain, clarify",ant:"misunderstand, confuse",ex:"It's hard to interpret his silence.",status:"learning"},
+  {id:62,diff:2,word:"Grieve",tr:"Yas tutmak, üzülmek",def:"Yas tutmak, üzülmek",syn:"mourn, lament",ant:"rejoice, celebrate",ex:"She grieved for weeks after her cat died.",status:"notlearned"},
+  {id:63,diff:2,word:"Black out",tr:"Bayılmak / elektriklerin gitmesi",def:"Bayılmak / elektriklerin gitmesi",syn:"faint, pass out",ant:"wake up",ex:"He blacked out after standing up too quickly.",status:"notlearned"},
+  {id:64,diff:2,word:"Eager",tr:"Hevesli, istekli",def:"Hevesli, istekli",syn:"enthusiastic, keen",ant:"indifferent, reluctant",ex:"She was eager to start her new job.",status:"notlearned"},
+  {id:65,diff:2,word:"Bachelor",tr:"Bekar erkek / lisans mezunu",def:"Bekar erkek / lisans mezunu",syn:"single man / graduate",ant:"married man / dropout",ex:"He's a 30-year-old bachelor living in New York.",status:"notlearned"},
+  {id:66,diff:2,word:"Spooky",tr:"Ürkütücü, korkutucu",def:"Ürkütücü, korkutucu",syn:"creepy, scary",ant:"comforting, normal",ex:"This old house looks really spooky at night.",status:"notlearned"},
+  {id:67,diff:2,word:"Vague",tr:"Belirsiz, net olmayan",def:"Belirsiz, net olmayan",syn:"unclear, ambiguous",ant:"clear, specific",ex:"His explanation was too vague to understand.",status:"notlearned"},
+  {id:68,diff:2,word:"Laying the groundwork",tr:"Temelini atmak, hazırlık yapmak",def:"Temelini atmak, hazırlık yapmak",syn:"prepare, pave the way",ant:"neglect, ignore",ex:"She is laying the groundwork for her future career.",status:"notlearned"},
+  {id:69,diff:2,word:"Crossroad",tr:"Yol ayrımı",def:"Yol ayrımı",syn:"—",ant:"—",ex:"—",status:"notlearned"},
+  {id:70,diff:2,word:"Allocate",tr:"Ayırmak, tahsis etmek",def:"Ayırmak, tahsis etmek",syn:"assign, distribute",ant:"withhold, retain",ex:"The government allocated funds for education.",status:"notlearned"},
+  {id:71,diff:2,word:"Discourage",tr:"Cesaretini kırmak, vazgeçirmek",def:"Cesaretini kırmak, vazgeçirmek",syn:"deter, dissuade",ant:"encourage, motivate",ex:"His teacher discouraged him from giving up.",status:"notlearned"},
+  {id:72,diff:2,word:"Grumpy",tr:"Huysuz, somurtkan",def:"Huysuz, somurtkan",syn:"irritable, cranky",ant:"cheerful, pleasant",ex:"He gets grumpy when he doesn't sleep well.",status:"notlearned"}
+];
+
+// ==================== FIREBASE SETUP ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyAyYMl9Hw2HT9-EmoXJdxBp8uoaeprLQZA",
+  authDomain: "sozluk-app-5b286.firebaseapp.com",
+  projectId: "sozluk-app-5b286",
+  storageBucket: "sozluk-app-5b286.firebasestorage.app",
+  messagingSenderId: "631363963059",
+  appId: "1:631363963059:web:c5a2c28aa7e746983588c6"
+};
+let fbApp, db;
+
+function initFirestore(){
+  fbApp = initializeApp(firebaseConfig);
+  db    = getFirestore(fbApp);
+}
+
+// Firestore helpers
+async function fsGetUser(uid){
+  const snap = await getDoc(fsDoc(db,'users',uid));
+  return snap.exists() ? {id:snap.id,...snap.data()} : null;
+}
+async function fsGetAllUsers(){
+  const snap = await getDocs(collection(db,'users'));
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function fsSetUser(uid,data){ await setDoc(fsDoc(db,'users',uid), data); }
+async function fsGetWords(uid){
+  const snap = await getDoc(fsDoc(db,'worddata',uid));
+  return snap.exists() ? snap.data() : null;
+}
+async function fsSetWords(uid,data){ await setDoc(fsDoc(db,'worddata',uid), data); }
+
+// ==================== AUTH UI ====================
+const COLORS=['#2B5597','#276749','#744210','#742a2a','#553c9a','#065666','#702459','#234e52'];
+function getColor(i){return COLORS[i%COLORS.length];}
+function hashPw(s){let h=0;for(let i=0;i<s.length;i++){h=(Math.imul(31,h)+s.charCodeAt(i))|0;}return h.toString(16);}
+function getSession(){return localStorage.getItem('sozluk_session_fb');}
+function setSession(uid){localStorage.setItem('sozluk_session_fb',uid);}
+function clearSession(){localStorage.removeItem('sozluk_session_fb');}
+
+let currentUser=null, words=[], nid=1, allUsers=[], persistTimer=null;
+
+function showScreen(s){
+  ['pick','login','register'].forEach(id=>{
+    const el=document.getElementById('screen-'+id);
+    if(el) el.style.display=(id===s)?'block':'none';
+  });
+  if(s==='pick') renderUserList();
+  if(s==='login'){
+    document.getElementById('login-err').style.display='none';
+    document.getElementById('login-name').value='';
+    document.getElementById('login-pw').value='';
+    setTimeout(()=>document.getElementById('login-name').focus(),100);
+  }
+  if(s==='register'){
+    document.getElementById('reg-err').style.display='none';
+    document.getElementById('reg-name').value='';
+    document.getElementById('reg-pw').value='';
+    document.getElementById('reg-pw2').value='';
+    setTimeout(()=>document.getElementById('reg-name').focus(),100);
+  }
+}
+
+function bindAuthButtons(){
+  document.getElementById('btn-goto-login').addEventListener('click', ()=>showScreen('login'));
+  document.getElementById('btn-goto-register').addEventListener('click', ()=>showScreen('register'));
+  document.getElementById('btn-back-from-login').addEventListener('click', ()=>showScreen('pick'));
+  document.getElementById('btn-back-from-register').addEventListener('click', ()=>showScreen('pick'));
+  document.getElementById('btn-do-login').addEventListener('click', doLogin);
+  document.getElementById('btn-do-register').addEventListener('click', doRegister);
+  document.getElementById('login-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  document.getElementById('reg-pw2').addEventListener('keydown', e=>{ if(e.key==='Enter') doRegister(); });
+}
+
+function showLoading(msg){
+  document.getElementById('auth-overlay').style.display='flex';
+  document.getElementById('app-wrap').style.display='none';
+  document.getElementById('auth-box').innerHTML=`
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:36px;margin-bottom:16px">⏳</div>
+      <div style="font-size:15px;font-weight:600;color:#2d3748">${msg}</div>
+      <div style="font-size:12px;color:#a0aec0;margin-top:8px">Lütfen bekleyin...</div>
+    </div>`;
+}
+
+function showAuthOverlay(){
+  document.getElementById('auth-overlay').style.display='flex';
+  document.getElementById('app-wrap').style.display='none';
+  showScreen('pick');
+}
+
+function renderUserList(){
+  const ul=document.getElementById('users-list');
+  if(!ul) return;
+  if(!allUsers.length){
+    ul.innerHTML='<div style="text-align:center;color:#a0aec0;font-size:13px;padding:12px 0">Henüz kayıtlı kullanıcı yok</div>';
+    return;
+  }
+  ul.innerHTML=allUsers.map((u,i)=>`
+    <div class="user-item" data-uid="${u.id}" style="cursor:pointer">
+      <div class="user-avatar" style="background:${getColor(i)}">${u.name.charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="user-name">${esc(u.name)}</div>
+        <div class="user-meta">${u.wordCount||0} kelime</div>
+      </div>
+      <span class="user-arrow">→</span>
+    </div>`).join('');
+  ul.querySelectorAll('.user-item').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const u=allUsers.find(x=>x.id===el.dataset.uid);
+      if(u){
+        document.getElementById('login-name').value=u.name;
+        showScreen('login');
+        setTimeout(()=>document.getElementById('login-pw').focus(),100);
+      }
+    });
+  });
+}
+
+async function doLogin(){
+  const name=document.getElementById('login-name').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  const err=document.getElementById('login-err');
+  err.style.display='none';
+  if(!name){err.textContent='Ad Soyad zorunludur.';err.style.display='block';return;}
+  if(!pw){err.textContent='Şifre zorunludur.';err.style.display='block';return;}
+  const btn=document.getElementById('btn-do-login');
+  btn.textContent='Giriş yapılıyor...';btn.disabled=true;
+  try{
+    // Reload users from Firebase (works on any device)
+    showLoading('Kullanıcılar yükleniyor...');
+    allUsers = await Promise.race([
+      fsGetAllUsers(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('Zaman aşımı')),10000))
+    ]);
+    const u=allUsers.find(x=>x.name.toLowerCase()===name.toLowerCase());
+    if(!u){
+      // Restore auth box
+      document.getElementById('auth-overlay').style.display='flex';
+      document.getElementById('app-wrap').style.display='none';
+      bindAuthButtons();
+      showScreen('login');
+      document.getElementById('login-name').value=name;
+      const e2=document.getElementById('login-err');
+      e2.textContent='Bu isimde kayıtlı kullanıcı bulunamadı.';
+      e2.style.display='block';
+      document.getElementById('btn-do-login').disabled=false;
+      document.getElementById('btn-do-login').textContent='Giriş Yap →';
+      return;
+    }
+    if(hashPw(pw)!==u.pwHash){
+      document.getElementById('auth-overlay').style.display='flex';
+      document.getElementById('app-wrap').style.display='none';
+      bindAuthButtons();
+      showScreen('login');
+      document.getElementById('login-name').value=name;
+      document.getElementById('login-pw').value='';
+      const e2=document.getElementById('login-err');
+      e2.textContent='Şifre yanlış.';
+      e2.style.display='block';
+      document.getElementById('btn-do-login').disabled=false;
+      document.getElementById('btn-do-login').textContent='Giriş Yap →';
+      setTimeout(()=>document.getElementById('login-pw').focus(),100);
+      return;
+    }
+    await loginUser(u,true);
+  }catch(e){
+    document.getElementById('auth-overlay').style.display='flex';
+    document.getElementById('app-wrap').style.display='none';
+    bindAuthButtons();
+    showScreen('login');
+    document.getElementById('login-name').value=name;
+    const e2=document.getElementById('login-err');
+    e2.textContent='Bağlantı hatası: '+e.message;
+    e2.style.display='block';
+    document.getElementById('btn-do-login').disabled=false;
+    document.getElementById('btn-do-login').textContent='Giriş Yap →';
+  }
+}
+
+async function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const pw=document.getElementById('reg-pw').value;
+  const pw2=document.getElementById('reg-pw2').value;
+  const err=document.getElementById('reg-err');
+  err.style.display='none';
+  if(!name){err.textContent='Ad Soyad zorunludur.';err.style.display='block';return;}
+  if(pw.length<4){err.textContent='Şifre en az 4 karakter olmalıdır.';err.style.display='block';return;}
+  if(pw!==pw2){err.textContent='Şifreler eşleşmiyor.';err.style.display='block';return;}
+  if(allUsers.find(u=>u.name.toLowerCase()===name.toLowerCase())){
+    err.textContent='Bu isimde bir kullanıcı zaten var.';err.style.display='block';return;
+  }
+  const btn=document.getElementById('btn-do-register');
+  btn.textContent='Kaydediliyor...';btn.disabled=true;
+  try{
+    const uid='u_'+Date.now();
+    const defaultWords=JSON.parse(JSON.stringify(DEFAULT_WORDS));
+    const newUser={id:uid,name,pwHash:hashPw(pw),createdAt:Date.now(),wordCount:defaultWords.length};
+    await fsSetUser(uid,newUser);
+    await fsSetWords(uid,{words:JSON.stringify(defaultWords),nid:String(defaultWords.length+1)});
+    allUsers.push(newUser);
+    await loginUser(newUser,true);
+  }catch(e){
+    err.textContent='Kayıt hatası: '+e.message;err.style.display='block';
+    btn.textContent='Hesap Oluştur →';btn.disabled=false;
+  }
+}
+
+async function loginUser(user,remember){
+  showLoading('Kelimeler yükleniyor...');
+  try{
+    currentUser=user;
+    if(remember) setSession(user.id);
+    const data=await fsGetWords(user.id);
+    if(data){
+      words=typeof data.words==='string'?JSON.parse(data.words):data.words;
+      nid=parseInt(data.nid)||words.length+1;
+    } else {
+      words=JSON.parse(JSON.stringify(DEFAULT_WORDS));
+      nid=DEFAULT_WORDS.length+1;
+      await fsSetWords(user.id,{words:JSON.stringify(words),nid:String(nid)});
+    }
+    document.getElementById('auth-overlay').style.display='none';
+    document.getElementById('app-wrap').style.display='block';
+    const idx=allUsers.findIndex(u=>u.id===user.id);
+    document.getElementById('user-badge-dot').style.background=getColor(Math.max(0,idx));
+    document.getElementById('user-badge-dot').textContent=user.name.charAt(0).toUpperCase();
+    document.getElementById('user-badge-name').textContent=user.name.split(' ')[0];
+    document.getElementById('app-sub').textContent=user.name+"'in kelime kütüphanesi";
+    activeFilter='all';
+    colSort={col:null,dir:1};
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('.filter-btn.f-all').classList.add('active');
+    renderDict();
+    updateAlgoPanel();
+  }catch(e){
+    console.error(e);
+    clearSession();
+    document.getElementById('auth-overlay').style.display='flex';
+    document.getElementById('app-wrap').style.display='none';
+    bindAuthButtons();
+    showScreen('pick');
+    const errEl=document.getElementById('pick-err');
+    if(errEl){errEl.textContent='Veri yükleme hatası: '+e.message;errEl.style.display='block';}
+  }
+}
+
+async function switchUser(){
+  clearSession();
+  currentUser=null; words=[];
+  session.queue=[];session.pos=0;session.streak=0;
+  document.getElementById('page-dict').style.display='block';
+  document.getElementById('page-flash').style.display='none';
+  document.querySelectorAll('.nav-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
+  try{ allUsers=await fsGetAllUsers(); }catch(e){}
+  showAuthOverlay();
+}
+
+function persist(){
+  if(!currentUser) return;
+  clearTimeout(persistTimer);
+  persistTimer=setTimeout(async()=>{
+    try{
+      await fsSetWords(currentUser.id,{words:JSON.stringify(words),nid:String(nid)});
+      const u=allUsers.find(x=>x.id===currentUser.id);
+      if(u&&u.wordCount!==words.length){
+        u.wordCount=words.length;
+        await fsSetUser(currentUser.id,{...u});
+      }
+    }catch(e){console.warn('Kaydetme hatası:',e);}
+  },1500);
+}
+
+// ==================== SHARED ====================
+const STATUS_ORDER={learned:0,learning:1,notlearned:2};
+const ROW_CLS={learned:'row-learned',learning:'row-learning',notlearned:'row-notlearned'};
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function diffBadge(d){const c=d==1?'b1':d==2?'b2':'b3';return`<span class="diff-badge ${c}">${d}</span>`}
+function updateStats(){
+  const learned=words.filter(w=>w.status==='learned').length;
+  const learning=words.filter(w=>w.status==='learning').length;
+  const notlearned=words.filter(w=>w.status==='notlearned').length;
+  document.getElementById('stats').innerHTML=`
+    <div class="sc all"><span>${words.length}</span>Toplam</div>
+    <div class="sc s-learned"><span>${learned}</span>✅</div>
+    <div class="sc s-learning"><span>${learning}</span>🔄</div>
+    <div class="sc s-notlearned"><span>${notlearned}</span>❌</div>`;
+}
+function showPage(p,btn){
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-dict').style.display=p==='dict'?'block':'none';
+  document.getElementById('page-flash').style.display=p==='flash'?'block':'none';
+  if(p==='flash') updateAlgoPanel();
+}
+
+// ==================== DICTIONARY ====================
+let activeFilter='all';
+let colSort={col:null,dir:1};
+let formOpen=true;
+
+document.getElementById('thead').addEventListener('click',e=>{
+  const th=e.target.closest('th[data-col]');if(!th)return;
+  const col=th.dataset.col;
+  if(colSort.col===col)colSort.dir*=-1;else{colSort.col=col;colSort.dir=1;}
+  document.querySelectorAll('thead th').forEach(t=>t.classList.remove('sorted'));
+  th.classList.add('sorted');
+  document.querySelectorAll('.sort-arr').forEach(a=>a.textContent='↕');
+  th.querySelector('.sort-arr').textContent=colSort.dir===1?'↑':'↓';
+  document.getElementById('sort-sel').value='default';
+  renderDict();
+});
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDict();
+}
+function getSorted(list){
+  const sel=document.getElementById('sort-sel').value;
+  let arr=[...list];
+  if(colSort.col){
+    const c=colSort.col,d=colSort.dir;
+    arr.sort((a,b)=>{
+      if(c==='diff')return(a.diff-b.diff)*d;
+      if(c==='word')return a.word.localeCompare(b.word)*d;
+      if(c==='tr')return a.tr.localeCompare(b.tr)*d;
+      if(c==='status')return(STATUS_ORDER[a.status]-STATUS_ORDER[b.status])*d;
+      return 0;
+    });
+    return arr;
+  }
+  const smap={'status-learned':{learned:0,learning:1,notlearned:2},'status-learning':{learning:0,learned:1,notlearned:2},'status-notlearned':{notlearned:0,learning:1,learned:2}};
+  if(sel==='word-az')arr.sort((a,b)=>a.word.localeCompare(b.word));
+  else if(sel==='word-za')arr.sort((a,b)=>b.word.localeCompare(a.word));
+  else if(sel==='diff-asc')arr.sort((a,b)=>a.diff-b.diff);
+  else if(sel==='diff-desc')arr.sort((a,b)=>b.diff-a.diff);
+  else if(smap[sel]){const m=smap[sel];arr.sort((a,b)=>m[a.status]-m[b.status]);}
+  return arr;
+}
+function renderDict(){
+  const q=document.getElementById('search').value.toLowerCase();
+  let list=words.filter(w=>(activeFilter==='all'||w.status===activeFilter)&&(w.word.toLowerCase().includes(q)||w.tr.toLowerCase().includes(q)||w.def.toLowerCase().includes(q)));
+  list=getSorted(list);
+  const tb=document.getElementById('tbody');
+  tb.innerHTML=list.length?list.map(w=>`
+    <tr class="${ROW_CLS[w.status]}">
+      <td style="text-align:center">${diffBadge(w.diff)}</td>
+      <td class="word-cell"><div class="word-with-audio">${esc(w.word)}<button class="speak-btn" onclick="event.stopPropagation();speak('${w.word.replace(/'/g,"\\'")}',this)" title="Telaffuzu dinle">🔊</button></div></td>
+      <td class="tr-cell">${esc(w.tr)}</td>
+      <td>${esc(w.def)}</td>
+      <td class="syn-cell">${esc(w.syn)}</td>
+      <td class="ant-cell">${esc(w.ant)}</td>
+      <td><div class="del-wrap"><span class="ex-cell">${esc(w.ex)}</span><button class="del-btn" onclick="del(${w.id})">✕</button></div></td>
+      <td style="text-align:center">
+        <select class="status-select" onchange="changeStatus(${w.id},this.value)">
+          <option value="learned" ${w.status==='learned'?'selected':''}>✅ Öğrenildi</option>
+          <option value="learning" ${w.status==='learning'?'selected':''}>🔄 Öğreniliyor</option>
+          <option value="notlearned" ${w.status==='notlearned'?'selected':''}>❌ Öğrenilmedi</option>
+        </select>
+      </td>
+    </tr>`).join(''):`<tr><td colspan="8"><div class="empty">Kelime bulunamadı.</div></td></tr>`;
+  updateStats();
+}
+function changeStatus(id,val){const w=words.find(w=>w.id===id);if(w){w.status=val;renderDict();persist();}}
+function del(id){if(confirm('Bu kelimeyi silmek istiyor musunuz?')){words=words.filter(w=>w.id!==id);renderDict();persist();}}
+function addWord(){
+  const word=document.getElementById('f-word').value.trim();
+  const tr=document.getElementById('f-tr').value.trim();
+  const def=document.getElementById('f-def').value.trim();
+  const err=document.getElementById('err-msg');
+  if(!word||!tr||!def){err.style.display='block';return;}
+  err.style.display='none';
+  words.push({id:nid++,diff:parseInt(document.getElementById('f-diff').value),word,tr,def,
+    syn:document.getElementById('f-syn').value.trim()||'—',
+    ant:document.getElementById('f-ant').value.trim()||'—',
+    ex:document.getElementById('f-ex').value.trim()||'—',
+    status:document.getElementById('f-status').value});
+  ['f-word','f-tr','f-def','f-syn','f-ant','f-ex'].forEach(i=>document.getElementById(i).value='');
+  renderDict();
+  persist();
+}
+function toggleForm(){
+  formOpen=!formOpen;
+  document.getElementById('add-body').style.display=formOpen?'block':'none';
+  document.getElementById('tog-btn').textContent=formOpen?'Gizle ▲':'Göster ▼';
+}
+
+// ==================== FLASHCARD ====================
+let session={queue:[],pos:0,flipped:false,streak:0,mode:'en',learnedRatio:.7,learningRatio:.2,notlearnedRatio:.1,nlQueue:[]};
+function setMode(m,btn){session.mode=m;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function buildQueue(){
+  const learned=words.filter(w=>w.status==='learned');
+  const learning=words.filter(w=>w.status==='learning');
+  const notlearned=words.filter(w=>w.status==='notlearned');
+  const total=words.length;
+  const sessionSize=Math.max(10,Math.min(total,20));
+  let nL=Math.min(Math.round(sessionSize*session.learnedRatio),learned.length);
+  let nLng=Math.min(Math.round(sessionSize*session.learningRatio),learning.length);
+  let nNl=Math.min(sessionSize-nL-nLng,notlearned.length);
+  const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
+  const pL=shuffle(learned).slice(0,nL);
+  const pLng=shuffle(learning).slice(0,nLng);
+  const pNl=shuffle(notlearned).slice(0,nNl);
+  const pattern=['learned','learned','learning','learned','notlearned','learned','learning','learned','learned','learned'];
+  const deck=[];
+  let li=0,lni=0,nli=0;
+  for(let i=0;i<sessionSize;i++){
+    const slot=pattern[i%pattern.length];
+    if(slot==='learned'&&li<pL.length)deck.push(pL[li++]);
+    else if(slot==='learning'&&lni<pLng.length)deck.push(pLng[lni++]);
+    else if(slot==='notlearned'&&nli<pNl.length)deck.push(pNl[nli++]);
+    else{if(li<pL.length)deck.push(pL[li++]);else if(lni<pLng.length)deck.push(pLng[lni++]);else if(nli<pNl.length)deck.push(pNl[nli++]);}
+  }
+  return deck;
+}
+function startSession(){
+  if(words.length===0){alert('Önce sözlüğe kelime ekleyin!');return;}
+  session.queue=buildQueue();session.pos=0;session.streak=0;session.flipped=false;
+  session.learnedRatio=.7;session.learningRatio=.2;session.notlearnedRatio=.1;
+  document.getElementById('flash-start').style.display='none';
+  document.getElementById('flash-done').style.display='none';
+  document.getElementById('flash-session').style.display='block';
+  showCard();updateAlgoPanel();
+}
+function restartSession(){document.getElementById('flash-done').style.display='none';document.getElementById('flash-start').style.display='flex';}
+function pillHTML(s){const m={learned:{cls:'pill-learned',icon:'✅',text:'Öğrenildi'},learning:{cls:'pill-learning',icon:'🔄',text:'Öğreniliyor'},notlearned:{cls:'pill-notlearned',icon:'❌',text:'Öğrenilmedi'}};const x=m[s]||m.notlearned;return`<span class="fc-status-pill ${x.cls}">${x.icon} ${x.text}</span>`;}
+function showCard(){
+  if(session.pos>=session.queue.length){endSession();return;}
+  const w=session.queue[session.pos];
+  session.flipped=false;
+  document.getElementById('fc-inner').classList.remove('flipped');
+  document.getElementById('fc-status-pill').innerHTML=pillHTML(w.status);
+  document.getElementById('fc-front-word').textContent=session.mode==='en'?w.word:w.tr;
+  document.getElementById('fc-front-sub').textContent='';
+  document.getElementById('fc-back-word').textContent=w.word;
+  document.getElementById('fc-back-tr').textContent=w.tr;
+  document.getElementById('fc-back-ex').textContent=w.ex==='—'?'':w.ex;
+  document.getElementById('inline-status').value=w.status;
+  ['btn-wrong','btn-ok','btn-right'].forEach(id=>{document.getElementById(id).disabled=true;});
+  const pct=Math.round((session.pos/session.queue.length)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=`${session.pos} / ${session.queue.length}`;
+}
+function flipCard(){
+  if(session.flipped)return;
+  session.flipped=true;
+  document.getElementById('fc-inner').classList.add('flipped');
+  ['btn-wrong','btn-ok','btn-right'].forEach(id=>{document.getElementById(id).disabled=false;});
+}
+function answer(result){
+  if(!session.flipped)return;
+  const w=session.queue[session.pos];
+  if(result==='right'){
+    session.streak++;
+    if(w.status==='notlearned'){changeStatus(w.id,'learning');w.status='learning';}
+    if(session.streak>=20&&session.learnedRatio>.5){session.learnedRatio=.5;session.learningRatio=.35;session.notlearnedRatio=.15;}
+  }else if(result==='ok'){
+    session.streak=Math.max(0,session.streak-1);
+    if(w.status==='notlearned'){changeStatus(w.id,'learning');w.status='learning';}
+  }else{
+    session.streak=0;
+    if(w.status==='learning'){const at=Math.min(session.pos+3,session.queue.length);session.queue.splice(at,0,{...w});}
+    if(w.status==='learned'){changeStatus(w.id,'learning');w.status='learning';}
+  }
+  session.pos++;updateAlgoPanel();showCard();
+}
+function updateCardStatus(val){
+  if(session.pos<session.queue.length){const w=session.queue[session.pos];changeStatus(w.id,val);w.status=val;document.getElementById('fc-status-pill').innerHTML=pillHTML(val);}
+}
+function endSession(){
+  document.getElementById('flash-session').style.display='none';
+  document.getElementById('flash-done').style.display='flex';
+  const learned=words.filter(w=>w.status==='learned').length;
+  const pct=Math.round((learned/words.length)*100);
+  document.getElementById('done-sub').textContent=`${session.queue.length} kart tamamlandı. Toplam ${pct}% kelimen öğrenildi durumunda (${learned}/${words.length}). Streak: ${session.streak} 🔥`;
+  document.getElementById('prog-fill').style.width='100%';
+  document.getElementById('prog-label').textContent=`${session.queue.length} / ${session.queue.length}`;
+  updateStats();
+}
+function updateAlgoPanel(){
+  const learned=words.filter(w=>w.status==='learned').length;
+  const learning=words.filter(w=>w.status==='learning').length;
+  const notlearned=words.filter(w=>w.status==='notlearned').length;
+  document.getElementById('ap-total').textContent=words.length;
+  document.getElementById('ap-session').textContent=session.queue.length||'—';
+  document.getElementById('ap-learned').textContent=learned;
+  document.getElementById('ap-learning').textContent=learning;
+  document.getElementById('ap-notlearned').textContent=notlearned;
+  document.getElementById('ap-streak').textContent=session.streak;
+  const lr=Math.round(session.learnedRatio*100);
+  const lngr=Math.round(session.learningRatio*100);
+  const nlr=100-lr-lngr;
+  document.getElementById('mix-learned').style.width=lr+'%';
+  document.getElementById('mix-learning').style.width=lngr+'%';
+  document.getElementById('mix-notlearned').style.width=nlr+'%';
+  document.getElementById('mix-lbl-learned').textContent=`%${lr} Öğrenildi`;
+  document.getElementById('mix-lbl-learning').textContent=`%${lngr} Öğreniliyor`;
+  document.getElementById('mix-lbl-notlearned').textContent=`%${nlr} Öğrenilmedi`;
+}
+
+// ==================== SPEECH ====================
+let currentUtterance=null;
+let activeSpeakBtn=null;
+
+function speak(text, btn){
+  if(!window.speechSynthesis){alert('Tarayıcınız ses özelliğini desteklemiyor.');return;}
+  // Stop if same button clicked again
+  if(activeSpeakBtn===btn && window.speechSynthesis.speaking){
+    window.speechSynthesis.cancel();
+    return;
+  }
+  window.speechSynthesis.cancel();
+  if(activeSpeakBtn){activeSpeakBtn.classList.remove('speaking');}
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang='en-US';
+  utter.rate=0.9;
+  utter.pitch=1;
+  // Pick English voice if available
+  const voices=window.speechSynthesis.getVoices();
+  const enVoice=voices.find(v=>v.lang.startsWith('en')&&v.localService)||voices.find(v=>v.lang.startsWith('en'));
+  if(enVoice) utter.voice=enVoice;
+  currentUtterance=utter;
+  activeSpeakBtn=btn;
+  if(btn) btn.classList.add('speaking');
+  utter.onend=()=>{if(btn) btn.classList.remove('speaking');activeSpeakBtn=null;};
+  utter.onerror=()=>{if(btn) btn.classList.remove('speaking');activeSpeakBtn=null;};
+  window.speechSynthesis.speak(utter);
+}
+
+function speakCard(){
+  const w=session.queue[session.pos];
+  if(!w) return;
+  const text=session.mode==='en'?w.word:w.tr;
+  const lang=session.mode==='en'?'en-US':'tr-TR';
+  const btn=document.getElementById('fc-front-speak');
+  speakLang(text,lang,btn);
+}
+
+function speakCardBack(){
+  const w=session.queue[session.pos];
+  if(!w) return;
+  const btn=document.getElementById('fc-back-speak');
+  speakLang(w.word,'en-US',btn);
+}
+
+function speakLang(text,lang,btn){
+  if(!window.speechSynthesis){alert('Tarayıcınız ses özelliğini desteklemiyor.');return;}
+  if(activeSpeakBtn===btn && window.speechSynthesis.speaking){window.speechSynthesis.cancel();return;}
+  window.speechSynthesis.cancel();
+  if(activeSpeakBtn) activeSpeakBtn.classList.remove('speaking');
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang=lang;
+  utter.rate=0.9;
+  utter.pitch=1;
+  const voices=window.speechSynthesis.getVoices();
+  const voice=voices.find(v=>v.lang.startsWith(lang.split('-')[0])&&v.localService)||voices.find(v=>v.lang.startsWith(lang.split('-')[0]));
+  if(voice) utter.voice=voice;
+  activeSpeakBtn=btn;
+  if(btn) btn.classList.add('speaking');
+  utter.onend=()=>{if(btn) btn.classList.remove('speaking');activeSpeakBtn=null;};
+  utter.onerror=()=>{if(btn) btn.classList.remove('speaking');activeSpeakBtn=null;};
+  window.speechSynthesis.speak(utter);
+}
+
+// Preload voices (Chrome lazy-loads them)
+if(window.speechSynthesis){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+}
+
+// ==================== BOOT ====================
+async function initApp(){
+  showLoading('Firebase yükleniyor...');
+  try{
+    await loadFirebase();
+    initFirestore();
+  }catch(e){
+    showAuthOverlay();
+    bindAuthButtons();
+    const errEl=document.getElementById('pick-err');
+    if(errEl){errEl.textContent='Firebase yüklenemedi: '+e.message;errEl.style.display='block';}
+    return;
+  }
+  showLoading('Bağlanıyor...');
+  try{
+    allUsers=await Promise.race([
+      fsGetAllUsers(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('Zaman aşımı (10s)')),10000))
+    ]);
+    const sid=getSession();
+    if(sid){
+      const u=allUsers.find(u=>u.id===sid);
+      if(u){await loginUser(u,false);return;}
+    }
+    showAuthOverlay();
+    bindAuthButtons();
+  }catch(e){
+    console.error(e);
+    showAuthOverlay();
+    bindAuthButtons();
+    const errEl=document.getElementById('pick-err');
+    if(errEl){errEl.textContent='⚠️ Bağlantı kurulamadı: '+e.message;errEl.style.display='block';}
+  }
+}
+initApp();
+</script>
+</body>
+</html>
